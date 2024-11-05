@@ -1,0 +1,907 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+	"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>Procesar inventario de Bosque Nativo</title>
+   <script language="JavaScript" type="text/JavaScript" src="Res/code/shared.js"></script>
+   <script language="JavaScript" type="text/JavaScript" src="Res/code/boxController.js"></script>
+   <script language="JavaScript" type="text/JavaScript" src="Res/code/boxSettings.js"></script>
+   <link href="Res/styles/shared.css" rel="stylesheet" type="text/css">
+   <link href="Res/styles/StaticOutline.css" rel="stylesheet" type="text/css">
+</head>
+<body id="page" onload="init()">
+<!-- BEGIN PAGE HEADER -->
+<table id="pageHeader">
+   <tr>
+      <td class="left" rowspan="3">
+         <a class="noHover" href="index.html" target="_parent">
+         <img src="Res/images/logo.gif" alt=""></a> 
+      </td>
+      <td class="right">
+<!-- BEGIN TOOLS UTILITIES--> 
+<div class="utilities">
+  <span class="command">
+    <a href="index.html" target="_parent">
+      <span class="label">Inicio</span>
+    </a>
+  </span>
+<span class="utilities_toc">
+|
+  <span class="command">
+    <a href="contents.htm" target="_parent">
+      <span class="label">Contenido</span>
+    </a>
+  </span>
+</span>
+
+
+</div>
+<!-- END TOOLS UTILITIES--> 
+
+      </td>
+   </tr>
+   <tr>
+      <td class="right">
+        <div class="mapName">.calcuLEMUs</div>
+      </td>
+   </tr>
+   <tr>
+      <td class="right">
+        <div class="contactInformation">&nbsp;&nbsp;<a href="mailto:letourneau.federico@inta.gob.ar">letourneau.federico@inta.gob.ar</a></div>
+      </td>
+   </tr>
+</table>
+<!-- END PAGE HEADER -->
+
+<!-- BEGIN PAGE BODY-->
+
+<!-- BEGIN SIDE NAVIGATION WRAPPER-->
+<table>
+  <tr>
+    <td class="outlineColumn">
+    <!-- Ensure minimum width of outline-->
+    <img class="emptyImage" src="Res/images/empty.gif" 
+        width="190" height="1" alt=""><br>									
+<!-- STATIC OUTLINE - START -->
+  <div class="staticOutline">
+  <div class="hometopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="index.html">&nbsp;Inicio&nbsp;</a></span>
+  </div>
+  <div class="maintopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page2.html">&nbsp;Interface&nbsp;</a></span>
+  </div>
+  <div class="maintopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page3.html">&nbsp;Procesar inventario  de Plantaciones&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="tutorial%20videos/tutorial%20procesamiento%20plantaciones.mp4">&nbsp;tutorial procesamiento plantaciones.mp4&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page5.html">&nbsp;Formato de datos&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page6.html">&nbsp;Procesamiento&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page7.html">&nbsp;Definición de productos de trozado&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="LinkedDocuments/datosInventarioPlantaciones.xls">&nbsp;Ejemplo de datos&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page9.html">&nbsp;Diagrama de Flujo del cálculo&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page10.html">&nbsp;Resultados&nbsp;</a></span>
+  </div>
+  <div class="maintopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="select"><a href="Page11.html">&nbsp;Procesar inventario  de Bosque Nativo&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="LinkedDocuments/tutorial%20procesamiento%20bosque%20nativo.mp4">&nbsp;tutorial procesamiento bosque nativo.mp4&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page13.html">&nbsp;Formato de datos&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page14.html">&nbsp;Procesamiento&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="LinkedDocuments/datosInventarioBosqueNativo.xls">&nbsp;Ejemplo de datos&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page16.html">&nbsp;Resultados&nbsp;</a></span>
+  </div>
+  <div class="maintopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page17.html">&nbsp;Simulador Piltriquitrón&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="LinkedDocuments/tutorial%20conceptual%20simulador%20storytelling.mp4">&nbsp;tutorial conceptual simulador storytelling.mp4&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page19.html">&nbsp;Ejemplos&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page20.html">&nbsp;Proyectar un Inventario de Diámetros&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page21.html">&nbsp;Generar Tabla de Producción&nbsp;</a></span>
+  </div>
+  <div class="maintopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page22.html">&nbsp;Instalación y datos ejemplos&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="LinkedDocuments/tutorial%20instalacion.mp4">&nbsp;tutorial instalacion.mp4&nbsp;</a></span>
+  </div>
+  <div class="maintopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page24.html">&nbsp;Referencias&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page25.html">&nbsp;Simulación del crecimiento&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page26.html">&nbsp;Calidad de sitio&nbsp;</a></span>
+  </div>
+  <div class="subtopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page27.html">&nbsp;Volumen del fuste y productos&nbsp;</a></span>
+  </div>
+  <div class="maintopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page28.html">&nbsp;Créditos&nbsp;</a></span>
+  </div>
+  <div class="maintopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page29.html">&nbsp;Notas de las versión&nbsp;</a></span>
+  </div>
+  <div class="maintopic">
+	<img src="Res/images/arrow.gif" alt=""><span class="unselect"><a href="Page30.html">&nbsp;IFAB&nbsp;</a></span>
+  </div>
+
+  </div>
+<!-- STATIC OUTLINE - END -->
+
+    </td>
+    <td class="bodyColumn">
+<!-- END SIDE NAVIGATION WRAPPER-->
+
+<table id="pageBody">
+ <col class="main">
+ <col class="right">
+
+
+<!--BEGIN PAGE BODY ITEM-->
+<tr class="topic">
+  <td class="main" valign="top" colspan="2">
+    <table>
+      <tr class="topicHeader">
+        <td class="topicImageColumn">
+
+        </td>
+        <td class="topicLineColumn">
+          <a name="Topic9"></a>
+          <span class=outlineNumberFirst></span><span class=topicLineFirst>Procesar inventario de Bosque Nativo</span>
+          <span class="topicIcons">
+
+          </span>
+        </td>
+      </tr>
+    </table>
+
+
+     <div class="topicTextNotes"><div align="left"><font color="#010101"><span style=
+" font-size:12pt">Este m&#243;dulo tiene como objetivo proveer de
+informaci&#243;n para analizar estructuras de bosque nativo. El
+tipo de datos que utiliza esta basado el formato de la red de
+parcelas de inventario forestal permanente de la Reserva Loma del
+Medio - R&#237;o Azul, Pcia de R&#237;o Negro, que es administrada
+por el Instituto Nacional de Tecnolog&#237;a Agropecuaria, INTA EEA
+Bariloche.</span></font></div>
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt">Estas parcelas son empleadas para el monitoreo de
+la din&#225;mica de bosques con la presencia predominante de
+Cipr&#233;s de la Cordillera y Coihue, y otras especies
+acompa&#241;antes.</span></font></div>
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt">El procesador se ha desarrollado con la
+posibilidad de que el usuario pueda personalizar algunos de los
+criterios utilizados en el an&#225;lisis de la&#160; estructura del
+bosque, aunque a&#250;n resta programar aspectos que permitan
+mejorar la descripci&#243;n del mismo.</span></font></div>
+<div align="left"><span style=
+" font-size:12pt">&#160;&#160;</span></div>
+<div align="center"><img src="NotesImages/Topic9NotesImage4.gif"
+align="bottom" width="642" height="168" border="0" alt=
+"graphic" /></div>
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt">calcuLEMUs lee archivos de datos de inventarios
+forestales y produce salidas de par&#225;metros de rodal para cada
+parcela salidas gr&#225;ficas y tabuladas de las distribuciones del
+n&#250;mero de individuos y &#225;rea basal,&#160; distribuidos por
+clases de di&#225;metros, estratos verticales de la
+vegetaci&#243;n, especies presentes, y clases de estado
+sanitario.</span></font></div>
+<div align="left"><span style=" font-size:12pt">&#160;</span></div>
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt"><u>SALIDA GENERAL DE
+DATOS</u></span></font></div>
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt">Salida tabulada en archivo de Excel con datos
+de&#160; todas las parcelas presentes en el archivo
+procesado.</span></font></div>
+<div align="left"><span style=" font-size:12pt">&#160;</span></div>
+<div align="center"><img src="NotesImages/Topic9NotesImage6.gif"
+align="bottom" width="589" height="254" border="0" alt=
+"graphic" /></div>
+<div align="left"><span style=" font-size:12pt">&#160;</span></div>
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt"><u>SALIDA DE DATOS POR
+PARCELA</u></span></font></div>
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt">Salida tabulada en archivo de Excel propio de la
+parcela.</span></font></div>
+<ul style=
+"margin-top: 0mm; margin-bottom: 0mm; list-style-type: disc;">
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=" font-size:12pt">N&#250;mero de
+&#225;rboles vivos&#160; por especie y estrato
+vertical</span></font></li>
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=" font-size:12pt">&#193;rea basal
+por especie y estrato vertical</span></font></li>
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=" font-size:12pt">N&#250;mero de
+&#225;rboles vivos por especie y clase
+diam&#233;trica</span></font></li>
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=" font-size:12pt">&#193;rea basal
+por especie y clase diam&#233;trica.</span></font></li>
+</ul>
+<blockquote>
+<div align="center"><span style=
+" font-size:12pt">&#160;</span></div>
+</blockquote>
+<div align="center"><img src="NotesImages/Topic9NotesImage10.gif"
+align="bottom" width="315" height="465" border="0" alt=
+"graphic" /></div>
+<div align="center"><span style=
+" font-size:12pt">&#160;</span></div>
+<div align="left"><span style=" font-size:12pt">&#160;</span></div>
+<div align="left"><span style=" font-size:12pt">&#160;</span></div>
+<div align="left"><span style=" font-size:12pt">&#160;</span></div>
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt"><u>SALIDA GR&#193;FICA POR
+PARCELA</u></span></font></div>
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt">Por cada parcela se genera un archivo de imagen
+tipo *.emf de Windows con las tablas representadas en las salidas
+de distribuciones por estratos, especies y clase
+diam&#233;trica.</span></font></div>
+<div align="left"><img src="NotesImages/Topic9NotesImage12.gif"
+align="bottom" width="392" height="294" border="0" alt=
+"graphic" /></div>
+<div align="left"><span style=
+" font-size:12pt">&#160;&#160;</span></div>
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt"><u>FORMATO DEL ARCHIVO DE INGRESO DE
+DATOS</u></span></font></div>
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt">Los datos deben ordenarse de forma tabulada
+comenzando por la columna que identifica a que parcela corresponde
+el registro del &#225;rbol de la fila n. A continuaci&#243;n se
+presenta los encabezados y descripci&#243;n de los datos
+utilizados.</span></font></div>
+<div align="left"><span style=" font-size:12pt">&#160;</span></div>
+<table width="646" cellpadding="7" style=
+"table-layout: fixed; border-collapse: collapse; border-color: #000000;">
+<colgroup>
+<col width="181" />
+<col width="465" /></colgroup>
+<tr>
+<td align="left" valign="top" width="28%" height="54" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt">Idparcela(columna A)</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="54" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt">Clave &#250;nica de identificaci&#243;n de la
+parcela dentro del sistema de almacenamiento</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="54" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#010101"><span style=" font-size:12pt">Parcela(columna
+B)</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="54" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt">nombre de la parcela, es el nombre comunmente
+empleado</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="54" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#010101"><span style=" font-size:12pt">Fecha(columna
+C)</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="54" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#010101"><span style=" font-size:12pt">A&#241;o de
+realizaci&#243;n del inventario</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="35" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#010101"><span style=" font-size:12pt">Arbol(columna
+D)</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="35" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#010101"><span style=" font-size:12pt">n&#250;mero de
+identificaci&#243;n del &#225;rbol dentro de la
+parcela</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="54" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#010101"><span style=" font-size:12pt">Especie(columna
+C)</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="54" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt">c&#243;digo de especie de acuerdo a la hoja<br />
+&#8220; cod especies&#8221;</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="54" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#010101"><span style=" font-size:12pt">Estado(columna
+D)</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="54" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt">c&#243;digo de estado sanitario u otro de acuerdo
+ala hoja &#8220;codestado&#8221;</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="35" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#010101"><span style=" font-size:12pt">Dap(columna
+E)</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="35" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#010101"><span style=" font-size:12pt">di&#225;metro a la altura
+del pecho en mil&#237;metros</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="70" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">Disthtot(columna
+F)</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="70" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">distancia en metros para la determinaci&#243;n de
+altura total con clin&#243;metro, contemplado pero no se procesa en
+la versi&#243;n prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="626" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">Pendientehtot(columna G)</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="626" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">pendiente en grados desde el punto de observacion
+y el arbol, para la determinaci&#243;n de la altura total,
+contemplado pero no se procesa en la versi&#243;n
+prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="70" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">li_htot, y as&#237;
+sucesivamente.</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="70" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">lectura inferior hecha a la base del &#225;rbol
+en porcentaje, contemplado pero no se procesa en la versi&#243;n
+prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="464" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">ls_htot</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="464" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">lectura superior hecha al &#225;pice del
+&#225;rbol en porcentaje, contemplado pero no se procesa en la
+versi&#243;n prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="572" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">htot</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="572" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">altura total en metros calculada o medida con
+vara telescopica, vertex u otro instrumento. , contemplado pero no
+se procesa en la versi&#243;n prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="592" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">disticv</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="592" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">distancia en metros para la determinaci&#243;n de
+la altura de inicio de copa viva con clin&#243;metro, contemplado
+pero no se procesa en la versi&#243;n
+prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="466" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=
+" font-size:12pt">pendienteicv</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="466" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">distancia en metros para la determinaci&#243;n de
+la altura de inicio de copa viva con clin&#243;metro, contemplado
+pero no se procesa en la versi&#243;n
+prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="590" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">li_icv</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="590" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">lectura a la base del &#225;rbol para el calculo
+de la altura de inicio de copa viva en porcentaje, contemplado pero
+no se procesa en la versi&#243;n prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="626" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">ls_icv</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="626" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">lectura a la base de la copa del &#225;rbol para
+el calculo de la altura de inicio de copa viva en porcentaje,
+contemplado pero no se procesa en la versi&#243;n
+prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="286" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">icv</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="286" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">altura de inicio de copa vivamedida en metros,
+contemplado pero no se procesa en la versi&#243;n
+prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="358" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">eap</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="358" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">edad a la altura del pecho en a&#241;os,
+contemplado pero no se procesa en la versi&#243;n
+prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="430" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">etot</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="430" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">edad total , numero de anillos a 0,3 m de altura,
+contemplado pero no se procesa en la versi&#243;n
+prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="538" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">arbol
+muestra</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="538" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">indicar con el c&#243;digo (0) sino es arbol
+muestra, y se&#241;alar (1) si es un &#225;rbol muestra,
+contemplado pero no se procesa en la versi&#243;n
+prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="304" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=
+" font-size:12pt">Distancia</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="304" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">distancia en metros desde el centro de la parcela
+es para mapear el &#225;rbol, contemplado pero no se procesa en la
+versi&#243;n prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="554" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">rumbo</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="554" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">rumbo respecto del norte medido desde el centro
+de la parcela, es para mapear el arbol, contemplado pero no se
+procesa en la versi&#243;n prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="394" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">DAC</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="394" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">di&#225;metro de ancho de copaen metros,
+contemplado pero no se procesa en la versi&#243;n
+prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="394" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">vigor</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="394" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">Hace referencia a una caracter&#237;stica
+individual, contemplado pero no se procesa en la versi&#243;n
+prototipo.</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="52" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#010101"><span style=" font-size:12pt">Estrato</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="52" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#010101"><span style=
+" font-size:12pt">Piso/altura</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="top" width="28%" height="88" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=
+" font-size:12pt">producto</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="88" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">Producto, 1: madera, 2:
+poste, 3: le&#241;a, 4: viga</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="middle" width="28%" height="268" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">tendencia al desarrollo</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="268" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">Hace referencia al entorno de individuo en
+cuestion (competencia)</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="middle" width="28%" height="178" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">solidez</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="178" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">Hace referencia a la
+estabilidad del individuo</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="middle" width="28%" height="178" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#010101"><span style=" font-size:12pt">sup</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="178" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#010101"><span style=" font-size:12pt">superficie de la parcela en
+metros cuadrados</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="middle" width="28%" height="214" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=" font-size:12pt">fecha</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="214" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#9BBB59"><span style=
+" font-size:12pt">fecha de realizaci&#243;n del inventario o
+inventario postraleo</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="middle" width="28%" height="70" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=
+" font-size:12pt">observaciones</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="70" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#9BBB59"><span style=
+" font-size:12pt">observaciones</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="middle" width="28%" height="412" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#FF0000"><span style=" font-size:12pt">sexo</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="412" style=
+"border: solid #000000 1.00pt;">
+<div align="left"><font color="#FF0000"><span style=
+" font-size:12pt">Indica si el &#225;rbol es femenino o masculino.
+Para el caso de Cipr&#233;s. Incorporaci&#243;n en la siguiente
+versi&#243;n</span></font></div>
+</td>
+</tr>
+<tr>
+<td align="left" valign="middle" width="28%" height="214" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#FF0000"><span style=" font-size:12pt">rodal</span></font></div>
+</td>
+<td align="left" valign="top" width="72%" height="214" style=
+"border: solid #000000 1.00pt;">
+<div align="left" class="lastTableNotesDiv"><font color=
+"#FF0000"><span style=" font-size:12pt">N&#250;mero de rodal, por
+solicitud&#160; de SFA El Bols&#243;n</span></font></div>
+</td>
+</tr>
+</table>
+<div align="left"><span style=" font-size:12pt">&#160;</span></div>
+<div align="left"><font color="#010101"><span style=
+" font-size:12pt"><u>ASPECTOS QUE RESTAN INCORPORAR EN
+INTA-PIBN</u></span></font></div>
+<div align="left"><span style=" font-size:12pt">&#160;</span></div>
+<ul style=
+"margin-top: 0mm; margin-bottom: 0mm; list-style-type: disc;">
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=" font-size:12pt">Asignaci&#243;n
+de parcelas a rodales espec&#237;ficos y c&#225;lculo de
+par&#225;metros estad&#237;sticos por rodal.</span></font></li>
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=" font-size:12pt">Controles para
+la verificaci&#243;n de datos completos.</span></font></li>
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=
+" font-size:12pt">Distribuci&#243;n de productos forestales por
+especie y clase diam&#233;trica.</span></font></li>
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=" font-size:12pt">Procesamiento
+de datos de altura total y de inicio de copa por
+estrato.</span></font></li>
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=" font-size:12pt">Estimaci&#243;n
+del volumen de fuste por especie.</span></font></li>
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=" font-size:12pt">M&#243;dulo de
+simulaci&#243;n de raleos / entresacas por estrato y
+especie.</span></font></li>
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=" font-size:12pt">Mapeo de los
+&#225;rboles en la parcela.</span></font></li>
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=" font-size:12pt">Incorporar el
+an&#225;lisis de la regeneraci&#243;n a la parcela de inventario y
+procesamiento.</span></font></li>
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=" font-size:12pt">Incorporar el
+an&#225;lisis de sexo por individuos en el caso de</span>
+<span style=" font-size:12pt"><i>A chilensis</i></span><span style=
+" font-size:12pt">.</span></font></li>
+<li style=
+"margin-left: -13pt; margin-right: 0pt; padding-left: 0pt;">
+<font color="#010101"><span style=" font-size:12pt">Otros calculos
+: di&#225;metros medios cuadr&#225;ticos total, por especies, por
+estrato. C&#225;lculo de muertos por especie, clase
+diam&#233;trica, estrato, etc.</span></font></li>
+</ul>
+<div align="left"><span style=" font-size:12pt">&#160;</span></div>
+<div align="left"><span style=" font-size:12pt">&#160;</span></div>
+<div align="left"><span style=" font-size:12pt">&#160;</span></div></div>
+
+
+
+
+
+
+  </td>
+  <td class="right" valign="top">
+<!--right body column empty-->
+  </td>
+</tr>
+<!--END PAGE BODY ITEM-->
+
+
+<!-- BEGIN TOP BUTTON -->
+<tr class="topic">
+  <td class="main" valign="top" colspan="2">
+    <div class="body">
+      <div class="topCommand">
+        <span class="commands">
+	  <span class="command">
+            <img src="Res/images/top_button.gif" alt=""> 
+	      <a href="javascript:scroll(0,0)">
+	         <span class="label">Arriba</span>
+              </a>
+ 	</span>
+       </span>
+      </div>
+    </div>
+  </td>
+  <td class="right" valign="top">
+<!--right body column empty-->
+  </td>
+</tr>
+<!-- END TOP BUTTON -->
+
+</table>
+
+<!-- BEGIN SIDE NAVIGATION WRAPPER-->
+    </td>
+  </tr>
+</table> 
+<!-- END SIDE NAVIGATION WRAPPER-->
+
+<!-- END PAGE BODY-->
+
+<!---BEGIN FOOTER-->
+<table id="pageFooter">
+   <tr>
+      <!-- reserved for image <td class="left" rowspan="2"></td>-->
+      <td class="center" rowspan="2">
+         <div class="footerText">Instituto de Investigaciones Forestales y Agropecuarias Bariloche - Grupo de Ecología Forestal</div>
+      </td>
+      <td class="right">
+         <div class="hyperlink">
+            <span>   
+               <a href="https://ifab.conicet.gov.ar/" target="_blank">IFAB INTA - CONICET</a>
+            </span>
+         </div>
+      </td>
+   </tr>
+   <tr>
+      <td class="right">
+         <div class="lastUpdated">
+            <span>Última actualización:</span>
+            <span>05/11/2024</span>
+         </div>
+      </td>
+   </tr>
+   <tr>
+     <td></td>
+   </tr>
+</table>
+<!---END FOOTER-->
+
+
+</body>
+</html>
+
