@@ -1429,15 +1429,18 @@
             "contorta": { p1: 1.7103949, p2: -0.2880448, p3: -0.0564792, p4: -0.8862977, p5: 0.0002081, p6: 0.0155042, p7: -0.1046544 }
         };
 
-        function parseFloatRobust(val) {
-            if (val === undefined || val === null) return 0;
+        function parseFloatRobust(val, fallback = null) {
+            if (val === undefined || val === null) return fallback;
             if (typeof val === 'number') {
-                return isNaN(val) ? 0 : val;
+                if (val === 9999) return fallback;
+                return isNaN(val) ? fallback : val;
             }
             let str = String(val).trim();
             str = str.replace(',', '.');
+            if (str === '9999' || str === '9999.0' || str === '9999,0') return fallback;
             const parsed = parseFloat(str);
-            return isNaN(parsed) ? 0 : parsed;
+            if (parsed === 9999) return fallback;
+            return isNaN(parsed) ? fallback : parsed;
         }
 
         function calculateHeightPercentage(data) {
@@ -6333,14 +6336,34 @@
          * el procesamiento de DAP y Altura, y el cruzamiento con el KML/GPX.
          */
         function processForestryAgregates(rawTrees, gpxMap) {
-            window.allTreesHaveHeight = (rawTrees && rawTrees.length > 0) ? rawTrees.every(tree => {
+            if (!rawTrees || rawTrees.length === 0) return [];
+
+            // Auto-detectar si la columna 'dap' está expresada en milímetros o centímetros.
+            // Si el valor máximo encontrado para DAP es > 95, asumimos que está en mm y debemos convertirlo a cm (o tratarlo como mm).
+            let isOldDapInMm = false;
+            let maxDapSample = 0;
+            rawTrees.slice(0, 100).forEach(tree => {
+                const norm = {};
+                for (let k in tree) {
+                    norm[k.toLowerCase().trim()] = tree[k];
+                }
+                const rawDapVal = parseFloat(String(norm.dap || norm.dap_mm || 0).replace(',', '.'));
+                if (!isNaN(rawDapVal) && rawDapVal !== 9999) {
+                    if (rawDapVal > maxDapSample) maxDapSample = rawDapVal;
+                }
+            });
+            if (maxDapSample > 95) {
+                isOldDapInMm = true;
+            }
+
+            window.allTreesHaveHeight = rawTrees.every(tree => {
                 const norm = {};
                 for (let k in tree) {
                     norm[k.toLowerCase().trim()] = tree[k];
                 }
                 const htotM = parseFloatRobust(norm.htot_m !== undefined ? norm.htot_m : norm.htot);
                 return htotM > 0;
-            }) : false;
+            });
 
             const plotMap = {};
 
@@ -6350,24 +6373,27 @@
                     norm[k.toLowerCase().trim()] = tree[k];
                 }
 
-                // DIDÁCTICO: Mapeo de variables técnicas del software a nombres de visualización legibles
-                // str1 -> Campo
-                // str2 -> Lote
-                // str3 -> Rodal
                 const campo = String(norm.str1 || norm.campo || 'Sin Campo').trim();
                 const lote = String(norm.str2 || norm.lote || 'Sin Lote').trim();
                 const rodal = String(norm.str3 || norm.rodal || 'Sin Rodal').trim();
                 const parcelaId = String(norm.idparcela !== undefined ? norm.idparcela : (norm.parcela || 'Desconocido')).trim();
-                // Si existe dap_cm, se lee en centímetros y se convierte a milímetros. Sino, fallback a dap o dap_mm.
-                const dapMm = norm.dap_cm !== undefined 
-                    ? parseFloatRobust(norm.dap_cm) * 10 
-                    : parseFloatRobust(norm.dap || norm.dap_mm || 0);
                 
-                // Si existe htot_m, se lee. Sino, fallback a htot.
-                const htotM = parseFloatRobust(norm.htot_m !== undefined ? norm.htot_m : norm.htot);
+                let dapMm = 0;
+                if (norm.dap_cm !== undefined) {
+                    dapMm = parseFloatRobust(norm.dap_cm, 0) * 10;
+                } else {
+                    const rawDap = parseFloatRobust(norm.dap || norm.dap_mm || 0, 0);
+                    if (isOldDapInMm) {
+                        dapMm = rawDap; // Ya está en milímetros
+                    } else {
+                        dapMm = rawDap * 10; // Está en centímetros, convertimos a mm
+                    }
+                }
+                
+                const htotM = parseFloatRobust(norm.htot_m !== undefined ? norm.htot_m : norm.htot, null);
                 
                 // Si existe superficie_m2, se lee. Sino, fallback a superficie o area.
-                const superficieM2 = parseFloatRobust(norm.superficie_m2 !== undefined ? norm.superficie_m2 : (norm.superficie || norm.area || 0));
+                const superficieM2 = parseFloatRobust(norm.superficie_m2 !== undefined ? norm.superficie_m2 : (norm.superficie || norm.area || 0), 0);
                 
                 const fecha = norm.fecha !== undefined ? String(norm.fecha).trim() : '';
 
