@@ -265,9 +265,9 @@
 
                     <!-- Prioridad Sanitaria -->
                     <div class="pt-1">
-                        <label class="flex items-center gap-2 cursor-not-allowed text-xs font-semibold text-slate-400">
-                            <input type="checkbox" id="thinSanitary" checked disabled class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-not-allowed">
-                            <span>Prioridad Sanitaria (Sanidad/Calidad) <span class="text-[9px] font-normal text-slate-400">(Incondicional)</span></span>
+                        <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
+                            <input type="checkbox" id="thinSanitary" checked class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
+                            <span>Prioridad Sanitaria (Sanidad/Calidad)</span>
                         </label>
                     </div>
 
@@ -5378,34 +5378,62 @@
                 return;
             }
             try {
-                const data = filteredPlots.map(plot => {
-                    const sumProd = (plot.prodVolHa[1] || 0) + (plot.prodVolHa[2] || 0) + (plot.prodVolHa[3] || 0) + (plot.prodVolHa[4] || 0);
-                    const hasEtot = plot.avgEtot > 0;
-                    return {
-                        "Campo (str1)": plot.campo,
-                        "Lote (str2)": plot.lote,
-                        "Rodal (str3)": plot.rodal,
-                        "ID Parcela": plot.id,
-                        "Superficie (m2)": plot.superficie,
-                        "FECHA": plot.fecha || '',
-                        "Dg (cm)": parseFloat(plot.dapPromedio.toFixed(2)),
-                        "Altura Promedio (m)": parseFloat(plot.htotPromedio.toFixed(2)),
-                        "H100": plot.h100 !== null ? parseFloat(plot.h100.toFixed(2)) : "",
-                        "Esbeltez": plot.avgEsbeltez ? parseFloat(plot.avgEsbeltez.toFixed(2)) : "",
-                        "Densidad (N/ha)": Math.round(plot.densidad),
-                        "AB (m2/ha)": parseFloat((plot.areaBasal || 0).toFixed(4)),
-                        "DR": parseFloat((plot.dr || 0).toFixed(2)),
-                        "Volumen Bruto (m3/ha)": parseFloat((plot.volBrtHa || 0).toFixed(4)),
-                        "Volumen Trozado (m3/ha)": parseFloat(sumProd.toFixed(4)),
-                        "Volumen No Comercial (m3/ha)": parseFloat((plot.volDesechoHa || 0).toFixed(4)),
-                        "Edad Promedio (años)": hasEtot ? parseFloat((plot.avgEtot || 0).toFixed(1)) : (plot.avgEap ? parseFloat((plot.avgEap || 0).toFixed(1)) : ""),
-                        "Tipo Edad": hasEtot ? "ETOT" : "EAP",
-                        "Indice de Sitio (m)": plot.isVal ? parseFloat(plot.isVal.toFixed(2)) : "",
-                        "Especie Dominante IS": plot.isSp || "",
-                        "Ajuste H-DAP": plot.regression ? plot.regression.type : "-"
-                    };
+                const exportedRows = [];
+                filteredPlots.forEach(plot => {
+                    const hasDead = plot.arboles.some(t => t.vitalidad === 0);
+                    
+                    function buildRow(type) {
+                        let rowId = plot.id;
+                        let currentData = plot;
+                        let originalData = plot.original;
+
+                        if (type === 'vivos') {
+                            rowId = `${plot.id} - Vivos`;
+                            currentData = plot.vivos;
+                            originalData = plot.originalVivos;
+                        } else if (type === 'muertos') {
+                            rowId = `${plot.id} - Muertos`;
+                            currentData = plot.muertos;
+                            originalData = plot.originalMuertos;
+                        }
+
+                        const sumProd = (currentData.prodVolHa[1] || 0) + (currentData.prodVolHa[2] || 0) + (currentData.prodVolHa[3] || 0) + (currentData.prodVolHa[4] || 0);
+                        const hasEtot = currentData.avgEtot > 0;
+                        const isMuerto = type === 'muertos';
+                        
+                        return {
+                            "Campo (str1)": plot.campo,
+                            "Lote (str2)": plot.lote,
+                            "Rodal (str3)": plot.rodal,
+                            "ID Parcela": rowId,
+                            "Superficie (m2)": plot.superficie,
+                            "FECHA": plot.fecha || '',
+                            "Dg (cm)": isMuerto ? "" : parseFloat(currentData.dapPromedio.toFixed(2)),
+                            "Altura Promedio (m)": isMuerto ? "" : parseFloat(currentData.htotPromedio.toFixed(2)),
+                            "H100": isMuerto || currentData.h100 === null || currentData.h100 === undefined ? "" : parseFloat(currentData.h100.toFixed(2)),
+                            "Esbeltez": isMuerto || !currentData.avgEsbeltez ? "" : parseFloat(currentData.avgEsbeltez.toFixed(2)),
+                            "Densidad (N/ha)": Math.round(currentData.densidad),
+                            "AB (m2/ha)": parseFloat((currentData.areaBasal || 0).toFixed(4)),
+                            "DR": parseFloat((currentData.dr || 0).toFixed(2)),
+                            "Volumen Bruto (m3/ha)": parseFloat((currentData.volBrtHa || 0).toFixed(4)),
+                            "Volumen Trozado (m3/ha)": parseFloat(sumProd.toFixed(4)),
+                            "Volumen No Comercial (m3/ha)": parseFloat((currentData.volDesechoHa || 0).toFixed(4)),
+                            "Edad Promedio (años)": isMuerto ? "" : (hasEtot ? parseFloat((currentData.avgEtot || 0).toFixed(1)) : (currentData.avgEap ? parseFloat((currentData.avgEap || 0).toFixed(1)) : "")),
+                            "Tipo Edad": isMuerto ? "" : (hasEtot ? "ETOT" : "EAP"),
+                            "Indice de Sitio (m)": isMuerto || !currentData.isVal ? "" : parseFloat(currentData.isVal.toFixed(2)),
+                            "Especie Dominante IS": isMuerto ? "" : (currentData.isSp || ""),
+                            "Ajuste H-DAP": isMuerto ? "" : (plot.regression ? plot.regression.type : "-")
+                        };
+                    }
+                    
+                    if (!hasDead) {
+                        exportedRows.push(buildRow('normal'));
+                    } else {
+                        exportedRows.push(buildRow('vivos'));
+                        exportedRows.push(buildRow('muertos'));
+                    }
                 });
-                const ws = XLSX.utils.json_to_sheet(data);
+                const ws = XLSX.utils.json_to_sheet(exportedRows);
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "Resultados Parcelas");
                 XLSX.writeFile(wb, getDynamicFilename("parcelas_procesadas.xlsx"));
@@ -5422,33 +5450,61 @@
                 return;
             }
             try {
-                const data = filteredPlots.map(plot => {
-                    const hasEtot = plot.avgEtot > 0;
-                    return {
-                        "Campo (str1)": plot.campo,
-                        "Lote (str2)": plot.lote,
-                        "Rodal (str3)": plot.rodal,
-                        "ID Parcela": plot.id,
-                        "Superficie (m2)": plot.superficie,
-                        "Cantidad Arboles": plot.totalTrees,
-                        "DAP Promedio (cm)": parseFloat(plot.dapPromedio.toFixed(2)),
-                        "Altura Promedio (m)": parseFloat(plot.htotPromedio.toFixed(2)),
-                        "Esbeltez": plot.avgEsbeltez ? parseFloat(plot.avgEsbeltez.toFixed(2)) : "",
-                        "Densidad (N/ha)": Math.round(plot.densidad),
-                        "AB (m2/ha)": parseFloat((plot.areaBasal || 0).toFixed(4)),
-                        "P1 (m3/ha)": parseFloat((plot.prodVolHa[1] || 0).toFixed(4)),
-                        "P2 (m3/ha)": parseFloat((plot.prodVolHa[2] || 0).toFixed(4)),
-                        "P3 (m3/ha)": parseFloat((plot.prodVolHa[3] || 0).toFixed(4)),
-                        "P4 (m3/ha)": parseFloat((plot.prodVolHa[4] || 0).toFixed(4)),
-                        "Desecho (m3/ha)": parseFloat((plot.volDesechoHa || 0).toFixed(4)),
-                        "Edad": hasEtot ? parseFloat((plot.avgEtot || 0).toFixed(1)) : (plot.avgEap ? parseFloat((plot.avgEap || 0).toFixed(1)) : ""),
-                        "TipoEdad": hasEtot ? "ETOT" : "EAP",
-                        "IS": plot.isVal ? parseFloat(plot.isVal.toFixed(2)) : "",
-                        "IS_Especie": plot.isSp || "",
-                        "Ajuste H-DAP": plot.regression ? plot.regression.type : "-"
-                    };
+                const exportedRows = [];
+                filteredPlots.forEach(plot => {
+                    const hasDead = plot.arboles.some(t => t.vitalidad === 0);
+                    
+                    function buildRow(type) {
+                        let rowId = plot.id;
+                        let currentData = plot;
+                        let originalData = plot.original;
+
+                        if (type === 'vivos') {
+                            rowId = `${plot.id} - Vivos`;
+                            currentData = plot.vivos;
+                            originalData = plot.originalVivos;
+                        } else if (type === 'muertos') {
+                            rowId = `${plot.id} - Muertos`;
+                            currentData = plot.muertos;
+                            originalData = plot.originalMuertos;
+                        }
+
+                        const hasEtot = currentData.avgEtot > 0;
+                        const isMuerto = type === 'muertos';
+                        
+                        return {
+                            "Campo (str1)": plot.campo,
+                            "Lote (str2)": plot.lote,
+                            "Rodal (str3)": plot.rodal,
+                            "ID Parcela": rowId,
+                            "Superficie (m2)": plot.superficie,
+                            "Cantidad Arboles": currentData.totalTrees,
+                            "DAP Promedio (cm)": isMuerto ? "" : parseFloat(currentData.dapPromedio.toFixed(2)),
+                            "Altura Promedio (m)": isMuerto ? "" : parseFloat(currentData.htotPromedio.toFixed(2)),
+                            "Esbeltez": isMuerto || !currentData.avgEsbeltez ? "" : parseFloat(currentData.avgEsbeltez.toFixed(2)),
+                            "Densidad (N/ha)": Math.round(currentData.densidad),
+                            "AB (m2/ha)": parseFloat((currentData.areaBasal || 0).toFixed(4)),
+                            "P1 (m3/ha)": parseFloat((currentData.prodVolHa[1] || 0).toFixed(4)),
+                            "P2 (m3/ha)": parseFloat((currentData.prodVolHa[2] || 0).toFixed(4)),
+                            "P3 (m3/ha)": parseFloat((currentData.prodVolHa[3] || 0).toFixed(4)),
+                            "P4 (m3/ha)": parseFloat((currentData.prodVolHa[4] || 0).toFixed(4)),
+                            "Desecho (m3/ha)": parseFloat((currentData.volDesechoHa || 0).toFixed(4)),
+                            "Edad": isMuerto ? "" : (hasEtot ? parseFloat((currentData.avgEtot || 0).toFixed(1)) : (currentData.avgEap ? parseFloat((currentData.avgEap || 0).toFixed(1)) : "")),
+                            "TipoEdad": isMuerto ? "" : (hasEtot ? "ETOT" : "EAP"),
+                            "IS": isMuerto || !currentData.isVal ? "" : parseFloat(currentData.isVal.toFixed(2)),
+                            "IS_Especie": isMuerto ? "" : (currentData.isSp || ""),
+                            "Ajuste H-DAP": isMuerto ? "" : (plot.regression ? plot.regression.type : "-")
+                        };
+                    }
+                    
+                    if (!hasDead) {
+                        exportedRows.push(buildRow('normal'));
+                    } else {
+                        exportedRows.push(buildRow('vivos'));
+                        exportedRows.push(buildRow('muertos'));
+                    }
                 });
-                const csv = Papa.unparse(data);
+                const csv = Papa.unparse(exportedRows);
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
@@ -5471,49 +5527,77 @@
                 return;
             }
             try {
-                const data = filteredPlots.map(plot => {
-                    const hasEtot = plot.avgEtot > 0;
-                    const hasEtotOrig = plot.original && plot.original.avgEtot > 0;
-                    const ageActive = hasEtot ? plot.avgEtot : (plot.avgEap || 0);
-                    const ageOrig = plot.original 
-                        ? (hasEtotOrig ? plot.original.avgEtot : (plot.original.avgEap || 0)) 
-                        : ageActive;
-                    return {
-                        "Campo (str1)": plot.campo,
-                        "Lote (str2)": plot.lote,
-                        "Rodal (str3)": plot.rodal,
-                        "ID Parcela": plot.id,
-                        "Superficie (m2)": plot.superficie,
-                        "Arboles Antes": plot.original ? plot.original.totalTrees : plot.totalTrees,
-                        "Arboles Despues": plot.totalTrees,
-                        "Densidad Antes (N/ha)": Math.round(plot.original ? plot.original.densidad : plot.densidad),
-                        "Densidad Despues (N/ha)": Math.round(plot.densidad),
-                        "AB Antes (m2/ha)": parseFloat((plot.original ? plot.original.areaBasal : plot.areaBasal || 0).toFixed(4)),
-                        "AB Despues (m2/ha)": parseFloat((plot.areaBasal || 0).toFixed(4)),
-                        "DR Antes": parseFloat((plot.original ? plot.original.dr : plot.dr || 0).toFixed(2)),
-                        "DR Despues": parseFloat((plot.dr || 0).toFixed(2)),
-                        "P1 Antes (m3/ha)": parseFloat((plot.original ? plot.original.prodVolHa[1] : plot.prodVolHa[1] || 0).toFixed(4)),
-                        "P1 Despues (m3/ha)": parseFloat((plot.prodVolHa[1] || 0).toFixed(4)),
-                        "P2 Antes (m3/ha)": parseFloat((plot.original ? plot.original.prodVolHa[2] : plot.prodVolHa[2] || 0).toFixed(4)),
-                        "P2 Despues (m3/ha)": parseFloat((plot.prodVolHa[2] || 0).toFixed(4)),
-                        "P3 Antes (m3/ha)": parseFloat((plot.original ? plot.original.prodVolHa[3] : plot.prodVolHa[3] || 0).toFixed(4)),
-                        "P3 Despues (m3/ha)": parseFloat((plot.prodVolHa[3] || 0).toFixed(4)),
-                        "P4 Antes (m3/ha)": parseFloat((plot.original ? plot.original.prodVolHa[4] : plot.prodVolHa[4] || 0).toFixed(4)),
-                        "P4 Despues (m3/ha)": parseFloat((plot.prodVolHa[4] || 0).toFixed(4)),
-                        "Desecho Antes (m3/ha)": parseFloat((plot.original ? plot.original.volDesechoHa : plot.volDesechoHa || 0).toFixed(4)),
-                        "Desecho Despues (m3/ha)": parseFloat((plot.volDesechoHa || 0).toFixed(4)),
-                        "Esbeltez Antes": plot.original?.avgEsbeltez ? parseFloat(plot.original.avgEsbeltez.toFixed(2)) : "",
-                        "Esbeltez Despues": plot.avgEsbeltez ? parseFloat(plot.avgEsbeltez.toFixed(2)) : "",
-                        "Edad Antes (años)": ageOrig ? parseFloat(ageOrig.toFixed(1)) : "",
-                        "Edad Despues (años)": ageActive ? parseFloat(ageActive.toFixed(1)) : "",
-                        "Tipo Edad": hasEtot ? "ETOT" : "EAP",
-                        "IS Antes (m)": (plot.original ? (plot.original.isVal || 0) : (plot.isVal || 0)) ? parseFloat((plot.original ? (plot.original.isVal || 0) : (plot.isVal || 0)).toFixed(2)) : "",
-                        "IS Despues (m)": (plot.isVal || 0) ? parseFloat((plot.isVal || 0).toFixed(2)) : "",
-                        "IS Especie Dominante": plot.isSp || (plot.original ? plot.original.isSp : "") || "",
-                        "Ajuste H-DAP": plot.regression ? plot.regression.type : "-"
-                    };
+                const exportedRows = [];
+                filteredPlots.forEach(plot => {
+                    const hasDead = plot.arboles.some(t => t.vitalidad === 0);
+                    
+                    function buildRow(type) {
+                        let rowId = plot.id;
+                        let currentData = plot;
+                        let originalData = plot.original;
+
+                        if (type === 'vivos') {
+                            rowId = `${plot.id} - Vivos`;
+                            currentData = plot.vivos;
+                            originalData = plot.originalVivos;
+                        } else if (type === 'muertos') {
+                            rowId = `${plot.id} - Muertos`;
+                            currentData = plot.muertos;
+                            originalData = plot.originalMuertos;
+                        }
+
+                        const hasEtot = currentData.avgEtot > 0;
+                        const hasEtotOrig = originalData && originalData.avgEtot > 0;
+                        const ageActive = hasEtot ? currentData.avgEtot : (currentData.avgEap || 0);
+                        const ageOrig = originalData 
+                            ? (hasEtotOrig ? originalData.avgEtot : (originalData.avgEap || 0)) 
+                            : ageActive;
+                        const isMuerto = type === 'muertos';
+                        
+                        return {
+                            "Campo (str1)": plot.campo,
+                            "Lote (str2)": plot.lote,
+                            "Rodal (str3)": plot.rodal,
+                            "ID Parcela": rowId,
+                            "Superficie (m2)": plot.superficie,
+                            "Arboles Antes": originalData ? originalData.totalTrees : currentData.totalTrees,
+                            "Arboles Despues": currentData.totalTrees,
+                            "Densidad Antes (N/ha)": Math.round(originalData ? originalData.densidad : currentData.densidad),
+                            "Densidad Despues (N/ha)": Math.round(currentData.densidad),
+                            "AB Antes (m2/ha)": parseFloat((originalData ? originalData.areaBasal : currentData.areaBasal || 0).toFixed(4)),
+                            "AB Despues (m2/ha)": parseFloat((currentData.areaBasal || 0).toFixed(4)),
+                            "DR Antes": parseFloat((originalData ? originalData.dr : currentData.dr || 0).toFixed(2)),
+                            "DR Despues": parseFloat((currentData.dr || 0).toFixed(2)),
+                            "P1 Antes (m3/ha)": parseFloat((originalData ? originalData.prodVolHa[1] : currentData.prodVolHa[1] || 0).toFixed(4)),
+                            "P1 Despues (m3/ha)": parseFloat((currentData.prodVolHa[1] || 0).toFixed(4)),
+                            "P2 Antes (m3/ha)": parseFloat((originalData ? originalData.prodVolHa[2] : currentData.prodVolHa[2] || 0).toFixed(4)),
+                            "P2 Despues (m3/ha)": parseFloat((currentData.prodVolHa[2] || 0).toFixed(4)),
+                            "P3 Antes (m3/ha)": parseFloat((originalData ? originalData.prodVolHa[3] : currentData.prodVolHa[3] || 0).toFixed(4)),
+                            "P3 Despues (m3/ha)": parseFloat((currentData.prodVolHa[3] || 0).toFixed(4)),
+                            "P4 Antes (m3/ha)": parseFloat((originalData ? originalData.prodVolHa[4] : currentData.prodVolHa[4] || 0).toFixed(4)),
+                            "P4 Despues (m3/ha)": parseFloat((currentData.prodVolHa[4] || 0).toFixed(4)),
+                            "Desecho Antes (m3/ha)": parseFloat((originalData ? originalData.volDesechoHa : currentData.volDesechoHa || 0).toFixed(4)),
+                            "Desecho Despues (m3/ha)": parseFloat((currentData.volDesechoHa || 0).toFixed(4)),
+                            "Esbeltez Antes": isMuerto || !originalData?.avgEsbeltez ? "" : parseFloat(originalData.avgEsbeltez.toFixed(2)),
+                            "Esbeltez Despues": isMuerto || !currentData.avgEsbeltez ? "" : parseFloat(currentData.avgEsbeltez.toFixed(2)),
+                            "Edad Antes (años)": isMuerto || !ageOrig ? "" : parseFloat(ageOrig.toFixed(1)),
+                            "Edad Despues (años)": isMuerto || !ageActive ? "" : parseFloat(ageActive.toFixed(1)),
+                            "Tipo Edad": isMuerto ? "" : (hasEtot ? "ETOT" : "EAP"),
+                            "IS Antes (m)": isMuerto ? "" : ((originalData ? (originalData.isVal || 0) : (currentData.isVal || 0)) ? parseFloat((originalData ? (originalData.isVal || 0) : (currentData.isVal || 0)).toFixed(2)) : ""),
+                            "IS Despues (m)": isMuerto || !(currentData.isVal || 0) ? "" : parseFloat((currentData.isVal || 0).toFixed(2)),
+                            "IS Especie Dominante": isMuerto ? "" : (currentData.isSp || (originalData ? originalData.isSp : "") || ""),
+                            "Ajuste H-DAP": isMuerto ? "" : (plot.regression ? plot.regression.type : "-")
+                        };
+                    }
+                    
+                    if (!hasDead) {
+                        exportedRows.push(buildRow('normal'));
+                    } else {
+                        exportedRows.push(buildRow('vivos'));
+                        exportedRows.push(buildRow('muertos'));
+                    }
                 });
-                const ws = XLSX.utils.json_to_sheet(data, { origin: "A4" });
+                const ws = XLSX.utils.json_to_sheet(exportedRows, { origin: "A4" });
                 const criteriaText = document.getElementById('thinningCriteriaText')?.textContent || "No hay criterios de raleo activos definidos.";
                 XLSX.utils.sheet_add_aoa(ws, [
                     ["Reporte Comparativo de Raleo - calcuLEMUs"],
@@ -6652,47 +6736,48 @@
             };
 
             activePlots.forEach(p => {
-                const sumProd = (p.prodVolHa[1] || 0) + (p.prodVolHa[2] || 0) + (p.prodVolHa[3] || 0) + (p.prodVolHa[4] || 0);
-                const sumProdOrig = p.original 
-                    ? (p.original.prodVolHa[1] || 0) + (p.original.prodVolHa[2] || 0) + (p.original.prodVolHa[3] || 0) + (p.original.prodVolHa[4] || 0)
-                    : sumProd;
+                const pVivos = p.vivos || p;
+                const pOrigVivos = p.originalVivos || p.original || p;
+
+                const sumProd = (pVivos.prodVolHa[1] || 0) + (pVivos.prodVolHa[2] || 0) + (pVivos.prodVolHa[3] || 0) + (pVivos.prodVolHa[4] || 0);
+                const sumProdOrig = (pOrigVivos.prodVolHa[1] || 0) + (pOrigVivos.prodVolHa[2] || 0) + (pOrigVivos.prodVolHa[3] || 0) + (pOrigVivos.prodVolHa[4] || 0);
 
                 data.Superficie.active.push(p.superficie);
                 data.Superficie.original.push(p.superficie);
 
-                data.Dg.active.push(p.dapPromedio);
-                data.Dg.original.push(p.original ? p.original.dapPromedio : p.dapPromedio);
+                data.Dg.active.push(pVivos.dapPromedio);
+                data.Dg.original.push(pOrigVivos.dapPromedio);
 
-                data.AltProm.active.push(p.htotPromedio);
-                data.AltProm.original.push(p.original ? p.original.htotPromedio : p.htotPromedio);
+                data.AltProm.active.push(pVivos.htotPromedio);
+                data.AltProm.original.push(pOrigVivos.htotPromedio);
 
-                data.H100.active.push(p.h100 || 0);
-                data.H100.original.push((p.original ? p.original.h100 : p.h100) || 0);
+                data.H100.active.push(pVivos.h100 || 0);
+                data.H100.original.push(pOrigVivos.h100 || 0);
 
-                data.N.active.push(p.densidad);
-                data.N.original.push(p.original ? p.original.densidad : p.densidad);
+                data.N.active.push(pVivos.densidad);
+                data.N.original.push(pOrigVivos.densidad);
 
-                data.G.active.push(p.areaBasal || 0);
-                data.G.original.push((p.original ? p.original.areaBasal : p.areaBasal) || 0);
+                data.G.active.push(pVivos.areaBasal || 0);
+                data.G.original.push(pOrigVivos.areaBasal || 0);
 
-                data.DR.active.push(p.dr || 0);
-                data.DR.original.push((p.original ? p.original.dr : p.dr) || 0);
+                data.DR.active.push(pVivos.dr || 0);
+                data.DR.original.push(pOrigVivos.dr || 0);
 
                 data.VolTrozado.active.push(sumProd);
                 data.VolTrozado.original.push(sumProdOrig);
 
                 // Determinar qué edad usar (EAP o ETOT) basándonos en la especie dominante
-                const isCode = mapEspecieToISCode(p.isSp || (p.original && p.original.isSp) || (p.arboles[0] && p.arboles[0].especie));
+                const isCode = mapEspecieToISCode(pVivos.isSp || pOrigVivos.isSp || (p.arboles[0] && p.arboles[0].especie));
                 const useEtot = (isCode === 22 || isCode === 24);
                 
-                const ageActive = (useEtot ? p.avgEtot : p.avgEap) || 0;
-                const ageOrig = p.original ? ((useEtot ? p.original.avgEtot : p.original.avgEap) || 0) : ageActive;
+                const ageActive = (useEtot ? pVivos.avgEtot : pVivos.avgEap) || 0;
+                const ageOrig = (useEtot ? pOrigVivos.avgEtot : pOrigVivos.avgEap) || 0;
 
                 data.Edad.active.push(ageActive);
                 data.Edad.original.push(ageOrig);
 
-                data.IS.active.push(p.isVal || 0);
-                data.IS.original.push((p.original ? p.original.isVal : p.isVal) || 0);
+                data.IS.active.push(pVivos.isVal || 0);
+                data.IS.original.push(pOrigVivos.isVal || 0);
             });
 
             // Función estadística para calcular promedio y desvío
@@ -6765,97 +6850,123 @@
         }
 
         // Renderiza la tabla detallada de parcelas
-        function renderTable(activePlots) {
-            const tableBody = document.getElementById('parcelTableBody');
-            const tableStatus = document.getElementById('tableStatus');
+        function renderSingleRow(plot, type, tableBody) {
+            const isIsolated = selectedPlotId === plot.id;
+            const tr = document.createElement('tr');
             
-            tableStatus.textContent = `Visualizando ${activePlots.length} de ${plots.length} parcelas`;
+            tr.className = `cursor-pointer transition-all duration-300 border-b border-[#E2E8F0] ${isIsolated ? 'bg-emerald-50 border-l-4 border-l-[#059669] font-semibold' : 'hover:bg-slate-50 text-slate-700'}`;
+            
+            tr.onclick = (e) => {
+                if (e.target.closest('button')) return;
+                isolatePlot(plot.id);
+            };
 
-            if (activePlots.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="15" class="py-8 text-center text-slate-500 text-xs font-bold">
-                            Sin parcelas para mostrar en el filtro activo.
-                        </td>
-                    </tr>`;
-                return;
+            const dataBtn = `<button onclick="openTreeDataModal('${plot.id}')" title="Ver Datos de Árboles" class="p-1.5 bg-white hover:bg-[#059669] hover:text-white hover:scale-105 active:scale-95 text-[#059669] rounded-lg border border-[#059669] shadow-sm transition-all flex items-center justify-center">
+                                 <i data-lucide="database" class="w-3.5 h-3.5"></i>
+                             </button>`;
+
+            const chartsBtn = `<button onclick="openPlotChartsModal('${plot.id}')" title="Ver Gráficos de Parcela" class="p-1.5 bg-white hover:bg-sky-600 hover:text-white hover:scale-105 active:scale-95 text-sky-600 rounded-lg border border-sky-600 shadow-sm transition-all flex items-center justify-center">
+                                  <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
+                              </button>`;
+
+            function fmt(val, orig, dec = 0) {
+                if (orig === undefined || Math.abs(val - orig) < 0.0001) {
+                    return dec === 0 ? Math.round(val).toLocaleString('es-AR') : val.toFixed(dec);
+                }
+                const vStr = dec === 0 ? Math.round(val).toLocaleString('es-AR') : val.toFixed(dec);
+                const oStr = dec === 0 ? Math.round(orig).toLocaleString('es-AR') : orig.toFixed(dec);
+                return `${vStr} <span class="text-[9px] text-slate-400 font-normal">/ ${oStr}</span>`;
             }
 
-            tableBody.innerHTML = '';
-            
-            activePlots.forEach(plot => {
-                const isIsolated = selectedPlotId === plot.id;
-                const tr = document.createElement('tr');
+            function fmtH100(val, orig) {
+                if (val === null || val === undefined) return "-";
+                if (orig === null || orig === undefined || Math.abs(val - orig) < 0.0001) {
+                    return val.toFixed(1) + " m";
+                }
+                const vStr = val.toFixed(1);
+                const oStr = orig.toFixed(1);
+                return `${vStr} <span class="text-[9px] text-slate-400 font-normal">/ ${oStr}</span> m`;
+            }
+
+            let rowId = plot.id;
+            let currentData = plot;
+            let originalData = plot.original;
+
+            if (type === 'vivos') {
+                rowId = `${plot.id} - Vivos`;
+                currentData = plot.vivos;
+                originalData = plot.originalVivos;
+            } else if (type === 'muertos') {
+                rowId = `${plot.id} - Muertos`;
+                currentData = plot.muertos;
+                originalData = plot.originalMuertos;
+            }
+
+            const sumProd = (currentData.prodVolHa[1] || 0) + (currentData.prodVolHa[2] || 0) + (currentData.prodVolHa[3] || 0) + (currentData.prodVolHa[4] || 0);
+            const sumProdOrig = (originalData?.prodVolHa[1] || 0) + (originalData?.prodVolHa[2] || 0) + (originalData?.prodVolHa[3] || 0) + (originalData?.prodVolHa[4] || 0);
+            const diffProd = sumProdOrig - sumProd;
+
+            let volTrozadoHTML = "";
+            if (Math.abs(diffProd) < 0.0001) {
+                volTrozadoHTML = `${sumProd.toFixed(2)} <span class="text-[9px] text-slate-400 font-normal">m³/ha</span>`;
+            } else {
+                volTrozadoHTML = `
+                    <div class="font-extrabold text-emerald-800 text-xs">${sumProd.toFixed(2)} <span class="text-[9px] text-slate-400 font-normal">/ ${sumProdOrig.toFixed(2)}</span> <span class="text-[9px] text-slate-400 font-normal">m³</span></div>
+                    <div class="text-[9px] text-rose-600 font-extrabold mt-0.5">Cortado: -${diffProd.toFixed(2)}</div>
+                `;
+            }
+
+            const sumDesecho = currentData.volDesechoHa || 0;
+            const sumDesechoOrig = originalData?.volDesechoHa || 0;
+            const diffDesecho = sumDesechoOrig - sumDesecho;
+
+            let volDesechoHTML = "";
+            if (Math.abs(diffDesecho) < 0.0001) {
+                volDesechoHTML = `${sumDesecho.toFixed(2)} <span class="text-[9px] text-slate-400 font-normal">m³/ha</span>`;
+            } else {
+                volDesechoHTML = `
+                    <div class="font-extrabold text-amber-800 text-xs">${sumDesecho.toFixed(2)} <span class="text-[9px] text-slate-400 font-normal">/ ${sumDesechoOrig.toFixed(2)}</span> <span class="text-[9px] text-slate-400 font-normal">m³</span></div>
+                    <div class="text-[9px] text-rose-600 font-extrabold mt-0.5">Cortado: -${diffDesecho.toFixed(2)}</div>
+                `;
+            }
+
+            let dapPromedioHTML = "-";
+            let htotPromedioHTML = "-";
+            let h100HTML = "-";
+            let esbeltezHTML = "-";
+            let edadHTML = "-";
+            let isHTML = "-";
+            let displayEspecies = "-";
+            let actionsHTML = "-";
+
+            if (type !== 'muertos') {
+                dapPromedioHTML = `${fmt(currentData.dapPromedio, originalData?.dapPromedio, 1)} cm`;
+                htotPromedioHTML = `${fmt(currentData.htotPromedio, originalData?.htotPromedio, 1)} m`;
+                h100HTML = fmtH100(currentData.h100, originalData?.h100);
                 
-                // Resaltado si la parcela está aislada para análisis
-                tr.className = `cursor-pointer transition-all duration-300 border-b border-[#E2E8F0] ${isIsolated ? 'bg-emerald-55 bg-emerald-50 border-l-4 border-l-[#059669] font-semibold' : 'hover:bg-slate-50 text-slate-700'}`;
-                
-                // Doble interactividad al hacer clic en cualquier fila de la tabla
-                tr.onclick = (e) => {
-                    // Evitar que el clic en el botón de ver mapa lance doble evento
-                    if (e.target.closest('button')) return;
-                    isolatePlot(plot.id);
-                };
+                const esbActive = currentData.avgEsbeltez || 0;
+                const esbOrig = originalData ? (originalData.avgEsbeltez || 0) : esbActive;
+                esbeltezHTML = esbActive > 0 ? fmt(esbActive, esbOrig, 1) : "-";
 
-                const dataBtn = `<button onclick="openTreeDataModal('${plot.id}')" title="Ver Datos de Árboles" class="p-1.5 bg-white hover:bg-[#059669] hover:text-white hover:scale-105 active:scale-95 text-[#059669] rounded-lg border border-[#059669] shadow-sm transition-all flex items-center justify-center">
-                                     <i data-lucide="database" class="w-3.5 h-3.5"></i>
-                                 </button>`;
+                const hasEtot = currentData.avgEtot > 0;
+                const ageActive = hasEtot ? currentData.avgEtot : (currentData.avgEap || 0);
+                const hasEtotOrig = originalData && originalData.avgEtot > 0;
+                const ageOrig = originalData 
+                    ? (hasEtotOrig ? originalData.avgEtot : (originalData.avgEap || 0)) 
+                    : ageActive;
+                const labelSuffix = hasEtot ? " (ET)" : " (AP)";
+                edadHTML = ageActive > 0 ? (fmt(ageActive, ageOrig, 1) + labelSuffix) : "-";
 
-                const chartsBtn = `<button onclick="openPlotChartsModal('${plot.id}')" title="Ver Gráficos de Parcela" class="p-1.5 bg-white hover:bg-sky-600 hover:text-white hover:scale-105 active:scale-95 text-sky-600 rounded-lg border border-sky-600 shadow-sm transition-all flex items-center justify-center">
-                                      <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
-                                  </button>`;
-
-                // Función auxiliar para comparar Before/After
-                function fmt(val, orig, dec = 0) {
-                    if (orig === undefined || Math.abs(val - orig) < 0.0001) {
-                        return dec === 0 ? Math.round(val).toLocaleString('es-AR') : val.toFixed(dec);
-                    }
-                    const vStr = dec === 0 ? Math.round(val).toLocaleString('es-AR') : val.toFixed(dec);
-                    const oStr = dec === 0 ? Math.round(orig).toLocaleString('es-AR') : orig.toFixed(dec);
-                    return `${vStr} <span class="text-[9px] text-slate-400 font-normal">/ ${oStr}</span>`;
-                }
-
-                function fmtH100(val, orig) {
-                    if (val === null || val === undefined) return "-";
-                    if (orig === null || orig === undefined || Math.abs(val - orig) < 0.0001) {
-                        return val.toFixed(1) + " m";
-                    }
-                    const vStr = val.toFixed(1);
-                    const oStr = orig.toFixed(1);
-                    return `${vStr} <span class="text-[9px] text-slate-400 font-normal">/ ${oStr}</span> m`;
-                }
-
-                const sumProd = (plot.prodVolHa[1] || 0) + (plot.prodVolHa[2] || 0) + (plot.prodVolHa[3] || 0) + (plot.prodVolHa[4] || 0);
-                const sumProdOrig = (plot.original?.prodVolHa[1] || 0) + (plot.original?.prodVolHa[2] || 0) + (plot.original?.prodVolHa[3] || 0) + (plot.original?.prodVolHa[4] || 0);
-                const diffProd = sumProdOrig - sumProd;
-
-                let volTrozadoHTML = "";
-                if (Math.abs(diffProd) < 0.0001) {
-                    volTrozadoHTML = `${sumProd.toFixed(2)} <span class="text-[9px] text-slate-400 font-normal">m³/ha</span>`;
-                } else {
-                    volTrozadoHTML = `
-                        <div class="font-extrabold text-emerald-800 text-xs">${sumProd.toFixed(2)} <span class="text-[9px] text-slate-400 font-normal">/ ${sumProdOrig.toFixed(2)}</span> <span class="text-[9px] text-slate-400 font-normal">m³</span></div>
-                        <div class="text-[9px] text-rose-600 font-extrabold mt-0.5">Cortado: -${diffProd.toFixed(2)}</div>
-                    `;
-                }
-
-                const sumDesecho = plot.volDesechoHa || 0;
-                const sumDesechoOrig = plot.original?.volDesechoHa || 0;
-                const diffDesecho = sumDesechoOrig - sumDesecho;
-
-                let volDesechoHTML = "";
-                if (Math.abs(diffDesecho) < 0.0001) {
-                    volDesechoHTML = `${sumDesecho.toFixed(2)} <span class="text-[9px] text-slate-400 font-normal">m³/ha</span>`;
-                } else {
-                    volDesechoHTML = `
-                        <div class="font-extrabold text-amber-800 text-xs">${sumDesecho.toFixed(2)} <span class="text-[9px] text-slate-400 font-normal">/ ${sumDesechoOrig.toFixed(2)}</span> <span class="text-[9px] text-slate-400 font-normal">m³</span></div>
-                        <div class="text-[9px] text-rose-600 font-extrabold mt-0.5">Cortado: -${diffDesecho.toFixed(2)}</div>
-                    `;
-                }
+                const isValActive = currentData.isVal || 0;
+                const isValOrig = originalData ? (originalData.isVal || 0) : isValActive;
+                isHTML = isValActive > 0 ? (fmt(isValActive, isValOrig, 1) + " m") : "-";
 
                 let treesToUse = plot.arboles.filter(t => !t.removido);
+                if (type === 'vivos') {
+                    treesToUse = treesToUse.filter(t => t.vitalidad !== 0);
+                }
                 if (treesToUse.length === 0) {
-                    treesToUse = plot.arboles;
+                    treesToUse = plot.arboles.filter(t => t.vitalidad !== 0);
                 }
                 const totalCount = treesToUse.length;
                 const speciesCounts = {};
@@ -6868,51 +6979,63 @@
                     return { name: sp, pct: pct };
                 });
                 speciesList.sort((a, b) => a.pct - b.pct);
-                const displayEspecies = speciesList.map(item => `<span class="whitespace-nowrap font-medium text-[10px] text-slate-600 bg-slate-50 border border-slate-200/60 px-1.5 py-0.5 rounded">${item.name}: ${Math.round(item.pct)}%</span>`).join(' ');
+                displayEspecies = speciesList.map(item => `<span class="whitespace-nowrap font-medium text-[10px] text-slate-600 bg-slate-50 border border-slate-200/60 px-1.5 py-0.5 rounded">${item.name}: ${Math.round(item.pct)}%</span>`).join(' ');
 
-                const hasEtot = plot.avgEtot > 0;
-                const ageActive = hasEtot ? plot.avgEtot : (plot.avgEap || 0);
-                
-                const hasEtotOrig = plot.original && plot.original.avgEtot > 0;
-                const ageOrig = plot.original 
-                    ? (hasEtotOrig ? plot.original.avgEtot : (plot.original.avgEap || 0)) 
-                    : ageActive;
+                actionsHTML = `<div class="flex items-center justify-center gap-1.5">${dataBtn}${chartsBtn}</div>`;
+            }
 
-                const labelSuffix = hasEtot ? " (ET)" : " (AP)";
-                const edadHTML = ageActive > 0 ? (fmt(ageActive, ageOrig, 1) + labelSuffix) : "-";
+            tr.innerHTML = `
+                <td class="py-3 px-3 text-slate-800 font-medium">${plot.campo}</td>
+                <td class="py-3 px-3 text-center text-slate-650">${plot.lote}</td>
+                <td class="py-3 px-3 text-center text-slate-650">${plot.rodal}</td>
+                <td class="py-3 px-3 text-center font-extrabold text-slate-800">${rowId}</td>
+                <td class="py-3 px-3 text-right text-slate-700 font-semibold">${plot.superficie} m²</td>
+                <td class="py-3 px-3 text-right font-semibold text-slate-700">${dapPromedioHTML}</td>
+                <td class="py-3 px-3 text-right text-sky-700 font-semibold">${htotPromedioHTML}</td>
+                <td class="py-3 px-3 text-right text-sky-800 font-bold">${h100HTML}</td>
+                <td class="py-3 px-3 text-right text-purple-750 font-bold">${esbeltezHTML}</td>
+                <td class="py-3 px-3 text-right font-extrabold text-emerald-700">${fmt(currentData.densidad, originalData?.densidad)}</td>
+                <td class="py-3 px-3 text-right font-extrabold text-teal-700">${fmt(currentData.areaBasal, originalData?.areaBasal, 2)}</td>
+                <td class="py-3 px-3 text-right text-teal-800 font-bold">${fmt(currentData.dr, originalData?.dr, 2)}</td>
+                <td class="py-3 px-3 text-right font-bold text-xs">${volTrozadoHTML}</td>
+                <td class="py-3 px-3 text-right font-bold text-xs">${volDesechoHTML}</td>
+                <td class="py-3 px-3 text-right font-bold text-xs">${edadHTML}</td>
+                <td class="py-3 px-3 text-right font-bold text-xs">${isHTML}</td>
+                <td class="py-3 px-3 text-center leading-relaxed flex flex-wrap justify-center gap-1">${displayEspecies}</td>
+                <td class="py-3 px-3 text-center">
+                    ${actionsHTML}
+                </td>
+            `;
 
-                const isValActive = plot.isVal || 0;
-                const isValOrig = plot.original ? (plot.original.isVal || 0) : isValActive;
-                const isHTML = isValActive > 0 ? (fmt(isValActive, isValOrig, 1) + " m") : "-";
+            tableBody.appendChild(tr);
+        }
 
-                const esbActive = plot.avgEsbeltez || 0;
-                const esbOrig = plot.original ? (plot.original.avgEsbeltez || 0) : esbActive;
-                const esbeltezHTML = esbActive > 0 ? fmt(esbActive, esbOrig, 1) : "-";
+        function renderTable(activePlots) {
+            const tableBody = document.getElementById('parcelTableBody');
+            const tableStatus = document.getElementById('tableStatus');
+            
+            tableStatus.textContent = `Visualizando ${activePlots.length} de ${plots.length} parcelas`;
 
-                tr.innerHTML = `
-                    <td class="py-3 px-3 text-slate-800 font-medium">${plot.campo}</td>
-                    <td class="py-3 px-3 text-center text-slate-650">${plot.lote}</td>
-                    <td class="py-3 px-3 text-center text-slate-650">${plot.rodal}</td>
-                    <td class="py-3 px-3 text-center font-extrabold text-slate-800">${plot.id}</td>
-                    <td class="py-3 px-3 text-right text-slate-700 font-semibold">${plot.superficie} m²</td>
-                    <td class="py-3 px-3 text-right font-semibold text-slate-700">${fmt(plot.dapPromedio, plot.original?.dapPromedio, 1)} cm</td>
-                    <td class="py-3 px-3 text-right text-sky-700 font-semibold">${fmt(plot.htotPromedio, plot.original?.htotPromedio, 1)} m</td>
-                    <td class="py-3 px-3 text-right text-sky-800 font-bold">${fmtH100(plot.h100, plot.original?.h100)}</td>
-                    <td class="py-3 px-3 text-right text-purple-750 font-bold">${esbeltezHTML}</td>
-                    <td class="py-3 px-3 text-right font-extrabold text-emerald-700">${fmt(plot.densidad, plot.original?.densidad)}</td>
-                    <td class="py-3 px-3 text-right font-extrabold text-teal-700">${fmt(plot.areaBasal, plot.original?.areaBasal, 2)}</td>
-                    <td class="py-3 px-3 text-right text-teal-800 font-bold">${fmt(plot.dr, plot.original?.dr, 2)}</td>
-                    <td class="py-3 px-3 text-right font-bold text-xs">${volTrozadoHTML}</td>
-                    <td class="py-3 px-3 text-right font-bold text-xs">${volDesechoHTML}</td>
-                    <td class="py-3 px-3 text-right font-bold text-xs">${edadHTML}</td>
-                    <td class="py-3 px-3 text-right font-bold text-xs">${isHTML}</td>
-                    <td class="py-3 px-3 text-center leading-relaxed flex flex-wrap justify-center gap-1">${displayEspecies}</td>
-                    <td class="py-3 px-3 text-center">
-                        <div class="flex items-center justify-center gap-1.5">${dataBtn}${chartsBtn}</div>
-                    </td>
-                `;
+            if (activePlots.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="18" class="py-8 text-center text-slate-500 text-xs font-bold">
+                            Sin parcelas para mostrar en el filtro activo.
+                        </td>
+                    </tr>`;
+                return;
+            }
 
-                tableBody.appendChild(tr);
+            tableBody.innerHTML = '';
+            
+            activePlots.forEach(plot => {
+                const hasDead = plot.arboles.some(t => t.vitalidad === 0);
+                if (!hasDead) {
+                    renderSingleRow(plot, 'normal', tableBody);
+                } else {
+                    renderSingleRow(plot, 'vivos', tableBody);
+                    renderSingleRow(plot, 'muertos', tableBody);
+                }
             });
             lucide.createIcons();
         }
@@ -7986,6 +8109,82 @@
         }
 
         // DIDÁCTICO: Calcula las estadísticas consolidadas e integra la regresión local
+        function computeSubsetStats(trees, plot) {
+            const totalTrees = trees.length;
+            const densidad = plot.superficie > 0 ? (totalTrees / plot.superficie) * 10000 : 0;
+            const validDaps = trees.map(t => t.dapMm).filter(d => d > 0);
+            const validDapsCm = validDaps.map(d => d / 10);
+            const dapPromedio = validDapsCm.length > 0
+                ? Math.sqrt(validDapsCm.reduce((acc, v) => acc + v * v, 0) / validDapsCm.length)
+                : 0;
+
+            const sumDapSquared = validDaps.reduce((acc, d) => acc + d * d, 0); // en mm^2
+            const areaBasal = plot.superficie > 0
+                ? (Math.PI * sumDapSquared) / (400 * plot.superficie)
+                : 0;
+
+            const htotPromedio = calculateAverageHeight(trees, dapPromedio, plot.regression);
+            const h100 = calculateH100(trees, plot.superficie);
+
+            // Volúmenes
+            const prodVolumes = { 1: 0, 2: 0, 3: 0, 4: 0 };
+            const prodPieces = { 1: 0, 2: 0, 3: 0, 4: 0 };
+            let totalVolBrt = 0;
+            let totalVolDesecho = 0;
+            trees.forEach(t => {
+                if (t.dapMm > 0) {
+                    const h = getWorkingHeight(t);
+                    if (h > 0) {
+                        const result = simulateTreeBucking(t.dapMm, h, activeProductsSpec, t.especie);
+                        totalVolBrt += result.volBrtInd;
+                        totalVolDesecho += result.volDesecho;
+                        result.resProductos.forEach(p => {
+                            prodVolumes[p.id] += p.volConc;
+                            prodPieces[p.id] += p.pieces;
+                        });
+                    }
+                }
+            });
+
+            const areaHa = plot.superficie / 10000;
+            const prodVolHa = { 1: 0, 2: 0, 3: 0, 4: 0 };
+            activeProductsSpec.forEach(prod => {
+                prodVolHa[prod.id] = areaHa > 0 ? (prodVolumes[prod.id] / areaHa) : 0;
+            });
+            const volBrtHa = areaHa > 0 ? (totalVolBrt / areaHa) : 0;
+            const volDesechoHa = areaHa > 0 ? (totalVolDesecho / areaHa) : 0;
+
+            // Densidad Relativa DR
+            const dr = dapPromedio > 0 ? (areaBasal / Math.pow(dapPromedio, 0.5)) : 0;
+
+            const ageStats = calculateAgeAndIS(trees, h100);
+
+            const validEsb = trees.map(t => t.esbeltez).filter(v => v > 0);
+            const avgEsbeltez = validEsb.length > 0 
+                ? (validEsb.reduce((acc, v) => acc + v, 0) / validEsb.length) 
+                : 0;
+
+            return {
+                totalTrees,
+                densidad,
+                dapPromedio,
+                areaBasal,
+                htotPromedio,
+                h100,
+                prodVolumes,
+                prodPieces,
+                prodVolHa,
+                dr,
+                volBrtHa,
+                volDesechoHa,
+                avgEap: ageStats.avgEap,
+                avgEtot: ageStats.avgEtot,
+                isVal: ageStats.isVal,
+                isSp: ageStats.isSp,
+                avgEsbeltez
+            };
+        }
+
         function computePlotRegressionAndStats(plot, allPlots) {
             const activeTrees = plot.arboles.filter(t => !t.removido);
 
@@ -8007,147 +8206,22 @@
 
             // Guardar valores originales (baseline) si no existen
             if (!plot.original) {
-                const totalTrees = plot.arboles.length;
-                const densidad = plot.superficie > 0 ? (totalTrees / plot.superficie) * 10000 : 0;
-                const validDaps = plot.arboles.map(t => t.dapMm).filter(d => d > 0);
-                const validDapsCm = validDaps.map(d => d / 10);
-                const dapPromedio = validDapsCm.length > 0
-                    ? Math.sqrt(validDapsCm.reduce((acc, v) => acc + v * v, 0) / validDapsCm.length)
-                    : 0;
-
-                const sumDapSquared = validDaps.reduce((acc, d) => acc + d * d, 0); // en mm^2
-                const areaBasal = plot.superficie > 0
-                    ? (Math.PI * sumDapSquared) / (400 * plot.superficie)
-                    : 0;
-
-                const htotPromedio = calculateAverageHeight(plot.arboles, dapPromedio, plot.regression);
-                const h100 = calculateH100(plot.arboles, plot.superficie);
-
-                // Volúmenes originales
-                const prodVolumes = { 1: 0, 2: 0, 3: 0, 4: 0 };
-                const prodPieces = { 1: 0, 2: 0, 3: 0, 4: 0 };
-                let totalVolBrt = 0;
-                let totalVolDesecho = 0;
-                plot.arboles.forEach(t => {
-                    if (t.dapMm > 0) {
-                        const h = getWorkingHeight(t);
-                        if (h > 0) {
-                            const result = simulateTreeBucking(t.dapMm, h, activeProductsSpec, t.especie);
-                            totalVolBrt += result.volBrtInd;
-                            totalVolDesecho += result.volDesecho;
-                            result.resProductos.forEach(p => {
-                                prodVolumes[p.id] += p.volConc;
-                                prodPieces[p.id] += p.pieces;
-                            });
-                        }
-                    }
-                });
-
-                const areaHa = plot.superficie / 10000;
-                const prodVolHa = { 1: 0, 2: 0, 3: 0, 4: 0 };
-                activeProductsSpec.forEach(prod => {
-                    prodVolHa[prod.id] = areaHa > 0 ? (prodVolumes[prod.id] / areaHa) : 0;
-                });
-                const volBrtHa = areaHa > 0 ? (totalVolBrt / areaHa) : 0;
-                const volDesechoHa = areaHa > 0 ? (totalVolDesecho / areaHa) : 0;
-
-                // Densidad Relativa DR
-                const dr = dapPromedio > 0 ? (areaBasal / Math.pow(dapPromedio, 0.5)) : 0;
-
-                const originalAgeStats = calculateAgeAndIS(plot.arboles, h100);
-
-                const validEsbOrig = plot.arboles.map(t => t.esbeltez).filter(v => v > 0);
-                const avgEsbeltezOrig = validEsbOrig.length > 0 
-                    ? (validEsbOrig.reduce((acc, v) => acc + v, 0) / validEsbOrig.length) 
-                    : 0;
-
-                plot.original = {
-                    totalTrees,
-                    densidad,
-                    dapPromedio,
-                    areaBasal,
-                    htotPromedio,
-                    h100,
-                    prodVolumes,
-                    prodPieces,
-                    prodVolHa,
-                    dr,
-                    volBrtHa,
-                    volDesechoHa,
-                    avgEap: originalAgeStats.avgEap,
-                    avgEtot: originalAgeStats.avgEtot,
-                    isVal: originalAgeStats.isVal,
-                    isSp: originalAgeStats.isSp,
-                    avgEsbeltez: avgEsbeltezOrig
-                };
+                plot.original = computeSubsetStats(plot.arboles, plot);
+                
+                const origVivos = plot.arboles.filter(t => t.vitalidad !== 0);
+                const origMuertos = plot.arboles.filter(t => t.vitalidad === 0);
+                plot.originalVivos = computeSubsetStats(origVivos, plot);
+                plot.originalMuertos = computeSubsetStats(origMuertos, plot);
             }
 
             // Calcular valores residuales actuales (sobre los árboles no removidos)
-            plot.totalTrees = activeTrees.length;
-            plot.densidad = plot.superficie > 0 ? (plot.totalTrees / plot.superficie) * 10000 : 0;
+            const resStats = computeSubsetStats(activeTrees, plot);
+            Object.assign(plot, resStats);
 
-            const validDapsActive = activeTrees.map(t => t.dapMm).filter(d => d > 0);
-            const validDapsActiveCm = validDapsActive.map(d => d / 10);
-            plot.dapPromedio = validDapsActiveCm.length > 0
-                ? Math.sqrt(validDapsActiveCm.reduce((acc, v) => acc + v * v, 0) / validDapsActiveCm.length)
-                : 0;
-
-            const sumDapSquaredActive = validDapsActive.reduce((acc, d) => acc + d * d, 0); // en mm^2
-            plot.areaBasal = plot.superficie > 0
-                ? (Math.PI * sumDapSquaredActive) / (400 * plot.superficie)
-                : 0;
-
-            // Altura Promedio residual
-            plot.htotPromedio = calculateAverageHeight(activeTrees, plot.dapPromedio, plot.regression);
-            plot.h100 = calculateH100(activeTrees, plot.superficie);
-
-            // Volúmenes residuales
-            plot.prodVolumes = { 1: 0, 2: 0, 3: 0, 4: 0 };
-            plot.prodPieces = { 1: 0, 2: 0, 3: 0, 4: 0 };
-            let totalVolBrtActive = 0;
-            let totalVolDesechoActive = 0;
-            
-            activeTrees.forEach(t => {
-                if (t.dapMm > 0) {
-                    const h = getWorkingHeight(t);
-                    if (h > 0) {
-                        const result = simulateTreeBucking(t.dapMm, h, activeProductsSpec, t.especie);
-                        t.trozado = result; // Guardar resultados residuales
-                        totalVolBrtActive += result.volBrtInd;
-                        totalVolDesechoActive += result.volDesecho;
-                        
-                        result.resProductos.forEach(p => {
-                            if (plot.prodVolumes[p.id] !== undefined) {
-                                plot.prodVolumes[p.id] += p.volConc;
-                                plot.prodPieces[p.id] += p.pieces;
-                            }
-                        });
-                    }
-                }
-            });
-            
-            // Expresar rendimientos en m3/ha residuales
-            const areaHa = plot.superficie / 10000;
-            plot.prodVolHa = { 1: 0, 2: 0, 3: 0, 4: 0 };
-            activeProductsSpec.forEach(prod => {
-                plot.prodVolHa[prod.id] = areaHa > 0 ? (plot.prodVolumes[prod.id] / areaHa) : 0;
-            });
-            plot.volBrtHa = areaHa > 0 ? (totalVolBrtActive / areaHa) : 0;
-            plot.volDesechoHa = areaHa > 0 ? (totalVolDesechoActive / areaHa) : 0;
-
-            // Densidad Relativa DR residual
-            plot.dr = plot.dapPromedio > 0 ? (plot.areaBasal / Math.pow(plot.dapPromedio, 0.5)) : 0;
-
-            const activeAgeStats = calculateAgeAndIS(activeTrees, plot.h100);
-            plot.avgEap = activeAgeStats.avgEap;
-            plot.avgEtot = activeAgeStats.avgEtot;
-            plot.isVal = activeAgeStats.isVal;
-            plot.isSp = activeAgeStats.isSp;
-
-            const validEsbActive = activeTrees.map(t => t.esbeltez).filter(v => v > 0);
-            plot.avgEsbeltez = validEsbActive.length > 0 
-                ? (validEsbActive.reduce((acc, v) => acc + v, 0) / validEsbActive.length) 
-                : 0;
+            const activeVivos = activeTrees.filter(t => t.vitalidad !== 0);
+            const activeMuertos = activeTrees.filter(t => t.vitalidad === 0);
+            plot.vivos = computeSubsetStats(activeVivos, plot);
+            plot.muertos = computeSubsetStats(activeMuertos, plot);
         }
 
         function renderTrozadoConfigTable() {
@@ -8804,10 +8878,12 @@
                 plot.arboles.forEach(t => t.removido = false);
 
                 // Clasificar en los grupos jerárquicos estrictos (excluyendo especies con prioridad -1 "No cortar")
-                const deadTrees = plot.arboles.filter(t => t.vitalidad === 0 && speciesPriorities[t.especie] !== -1);
-                const sickTrees = plot.arboles.filter(t => t.vitalidad === 1 && t.sanidad === 1 && speciesPriorities[t.especie] !== -1);
-                const malformedTrees = plot.arboles.filter(t => t.vitalidad === 1 && t.sanidad === 0 && t.forma === 2 && speciesPriorities[t.especie] !== -1);
-                const healthyTrees = plot.arboles.filter(t => t.vitalidad === 1 && t.sanidad === 0 && t.forma === 1 && speciesPriorities[t.especie] !== -1);
+                const deadTrees = sanitary ? plot.arboles.filter(t => t.vitalidad === 0 && speciesPriorities[t.especie] !== -1) : [];
+                const sickTrees = sanitary ? plot.arboles.filter(t => t.vitalidad === 1 && t.sanidad === 1 && speciesPriorities[t.especie] !== -1) : [];
+                const malformedTrees = sanitary ? plot.arboles.filter(t => t.vitalidad === 1 && t.sanidad === 0 && t.forma === 2 && speciesPriorities[t.especie] !== -1) : [];
+                const healthyTrees = sanitary
+                    ? plot.arboles.filter(t => t.vitalidad === 1 && t.sanidad === 0 && t.forma === 1 && speciesPriorities[t.especie] !== -1)
+                    : plot.arboles.filter(t => speciesPriorities[t.especie] !== -1);
 
                 // Si es raleo sistemático, separamos los candidatos de las filas seleccionadas y de las remanentes
                 let systematicFilteredTrees = [];
@@ -8951,6 +9027,27 @@
                     txt += `Variable = ${variable === 'N' ? 'Densidad (N/ha)' : variable === 'G' ? 'Área Basal (G)' : 'Densidad Relativa (DR)'} (Objetivo residual: ${targetVal}). `;
                     txt += `Criterio: ${type === 'bajo' ? 'Por lo bajo (Menor DAP primero)' : type === 'alto' ? 'Por lo alto (Mayor DAP primero)' : 'Mixto (Alternar extremos)'}`;
                 }
+                
+                // Incluir estado de prioridad sanitaria
+                txt += ` | Prioridad Sanitaria: ${sanitary ? 'Activa (Muertos/Enfermos/Malformados primero)' : 'Inactiva'}`;
+
+                // Incluir secuencia de prioridades de especies si se configuraron
+                const prioList = [];
+                const priorityElements = document.querySelectorAll('.species-priority-select');
+                if (priorityElements && priorityElements.length > 0) {
+                    priorityElements.forEach(select => {
+                        const spec = select.getAttribute('data-species');
+                        const prio = parseInt(select.value) || 0;
+                        if (prio > 0) {
+                            prioList.push({ spec, prio });
+                        }
+                    });
+                }
+                if (prioList.length > 0) {
+                    prioList.sort((a, b) => a.prio - b.prio);
+                    txt += ` | Secuencia de Especies: ${prioList.map(p => `${p.prio}° ${p.spec}`).join(', ')}`;
+                }
+
                 criteriaText.textContent = txt;
                 criteriaDisplay.classList.remove('hidden');
                 criteriaDisplay.classList.add('flex');
