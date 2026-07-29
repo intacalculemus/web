@@ -6392,6 +6392,11 @@
                 
                 const htotM = parseFloatRobust(norm.htot_m !== undefined ? norm.htot_m : norm.htot, null);
                 
+                // Extraer variables de estructura de copa
+                const icvM = parseFloatRobust(norm.icv_m !== undefined ? norm.icv_m : norm.icv, null);
+                const icmM = parseFloatRobust(norm.icm_m !== undefined ? norm.icm_m : norm.ic, null);
+                const alturaPodaM = parseFloatRobust(norm.altura_poda_m !== undefined ? norm.altura_poda_m : (norm.altura_poda || norm.poda_m || norm.poda), null);
+                
                 // Si existe superficie_m2, se lee. Sino, fallback a superficie o area.
                 const superficieM2 = parseFloatRobust(norm.superficie_m2 !== undefined ? norm.superficie_m2 : (norm.superficie || norm.area || 0), 0);
                 
@@ -6464,6 +6469,9 @@
                     especie: String(norm.especie || 'Sin especie').trim(),
                     dapMm: dapMm,
                     htotM: htotM,
+                    icvM: icvM,
+                    icmM: icmM,
+                    alturaPodaM: alturaPodaM,
                     htotM_est: null,
                     estado: estado,
                     vitalidad: vitalidad,
@@ -7704,6 +7712,71 @@
                 }
             ];
 
+            // Rango de DAP para extender las rectas horizontales
+            const activeDaps = plot.arboles.filter(t => t.dapMm > 0 && !t.removido).map(t => t.dapMm / 10);
+            const minDap = activeDaps.length > 0 ? Math.min(...activeDaps) : 0;
+            const maxDap = activeDaps.length > 0 ? Math.max(...activeDaps) : 40;
+
+            const treesWithPoda = plot.arboles.filter(t => t.alturaPodaM !== null && t.alturaPodaM !== undefined && t.alturaPodaM > 0);
+            const avgPoda = treesWithPoda.length > 0 ? (treesWithPoda.reduce((acc, t) => acc + t.alturaPodaM, 0) / treesWithPoda.length) : null;
+
+            const treesWithIcm = plot.arboles.filter(t => t.icmM !== null && t.icmM !== undefined && t.icmM > 0);
+            const avgIcm = treesWithIcm.length > 0 ? (treesWithIcm.reduce((acc, t) => acc + t.icmM, 0) / treesWithIcm.length) : null;
+
+            const treesWithIcv = plot.arboles.filter(t => t.icvM !== null && t.icvM !== undefined && t.icvM > 0);
+            const avgIcv = treesWithIcv.length > 0 ? (treesWithIcv.reduce((acc, t) => acc + t.icvM, 0) / treesWithIcv.length) : null;
+
+            if (avgPoda !== null) {
+                datasets.push({
+                    label: `Altura Poda Promedio (${avgPoda.toFixed(2)} m)`,
+                    data: [
+                        { x: minDap, y: avgPoda },
+                        { x: maxDap, y: avgPoda }
+                    ],
+                    borderColor: '#f59e0b',
+                    borderWidth: 1.5,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    showLine: true,
+                    fill: false,
+                    tension: 0
+                });
+            }
+
+            if (avgIcm !== null) {
+                datasets.push({
+                    label: `Inicio Copa Muerta Promedio (${avgIcm.toFixed(2)} m)`,
+                    data: [
+                        { x: minDap, y: avgIcm },
+                        { x: maxDap, y: avgIcm }
+                    ],
+                    borderColor: '#b45309',
+                    borderWidth: 1.5,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    showLine: true,
+                    fill: false,
+                    tension: 0
+                });
+            }
+
+            if (avgIcv !== null) {
+                datasets.push({
+                    label: `Inicio Copa Viva Promedio (${avgIcv.toFixed(2)} m)`,
+                    data: [
+                        { x: minDap, y: avgIcv },
+                        { x: maxDap, y: avgIcv }
+                    ],
+                    borderColor: '#16a34a',
+                    borderWidth: 1.5,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    showLine: true,
+                    fill: false,
+                    tension: 0
+                });
+            }
+
             const allActiveHaveHeight = plot.arboles.filter(t => !t.removido && t.dapMm > 0).every(t => t.htotM > 0);
 
             if (!allActiveHaveHeight && estimatedScatter.length > 0) {
@@ -8162,6 +8235,7 @@
                     const h = getWorkingHeight(t);
                     if (h > 0) {
                         const result = simulateTreeBucking(t.dapMm, h, activeProductsSpec, t.especie);
+                        t.trozado = result;
                         totalVolBrt += result.volBrtInd;
                         totalVolDesecho += result.volDesecho;
                         result.resProductos.forEach(p => {
@@ -8404,7 +8478,7 @@
                 content.classList.add('scale-100');
                 
                 // Dibujar silueta en Canvas
-                drawTreeSilhouette(result, tree.dapMm, h);
+                drawTreeSilhouette(result, tree.dapMm, h, tree);
             }, 10);
             
             lucide.createIcons();
@@ -8420,7 +8494,7 @@
             }, 200);
         }
 
-        function drawTreeSilhouette(result, dapMm, htotM) {
+        function drawTreeSilhouette(result, dapMm, htotM, tree) {
             const canvas = document.getElementById('treeSilhouetteCanvas');
             if (!canvas) return;
             
@@ -8582,6 +8656,32 @@
                 ctx.strokeStyle = '#64748b55';
                 ctx.lineWidth = 1;
                 ctx.stroke();
+            }
+
+            // Dibujar líneas horizontales de la estructura vertical (Poda, Copa Muerta, Copa Viva)
+            if (tree) {
+                function drawStructureLine(heightVal, label, color) {
+                    if (heightVal === null || heightVal === undefined || heightVal <= 0 || heightVal > htotM) return;
+                    
+                    const yVal = h - padY - heightVal * scaleY;
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 3]);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(padX - 25, yVal);
+                    ctx.lineTo(w - padX + 25, yVal);
+                    ctx.stroke();
+                    ctx.setLineDash([]); // Reset dash
+                    
+                    ctx.fillStyle = color;
+                    ctx.font = 'bold 8px Outfit, sans-serif';
+                    ctx.fillText(`${label}: ${heightVal.toFixed(2)}m`, 10, yVal - 4);
+                }
+
+                drawStructureLine(tree.alturaPodaM, "PODA", "#f59e0b");
+                drawStructureLine(tree.icmM, "COPA MUERTA", "#b45309");
+                drawStructureLine(tree.icvM, "COPA VIVA", "#16a34a");
             }
         }
 
